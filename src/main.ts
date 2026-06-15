@@ -66,12 +66,27 @@ Using these ingredients: ${ingredients}
 
 Generate 3 different recipes.
 
-For each recipe provide:
+For each recipe use:
 
-Recipe Name
-Ingredients
-Steps
-Cooking Time
+🍲 Recipe Name
+
+🥕 Ingredients:
+• ingredient 1
+• ingredient 2
+
+👨‍🍳 Steps:
+1. Step one
+2. Step two
+
+⏱ Cooking Time
+
+Separate each recipe with:
+
+========================
+
+Repeat for all 3 recipes.
+
+Make output clean and well formatted.
 
 Make the recipes easy and beginner friendly.
 `;
@@ -84,8 +99,7 @@ const response = await groq.chat.completions.create({
   ],
   model: "llama-3.3-70b-versatile",
 });
-
-const recipe = response.choices[0].message.content;
+const recipe = response.choices[0].message.content || "";
 result!.innerHTML = `
 <div
 style="
@@ -112,16 +126,20 @@ border-radius:15px;
 🍅 🧅 🥚
 </div>
 
-<pre
+<div
 style="
-white-space:pre-wrap;
 text-align:left;
-font-size:15px;
-line-height:1.6;
+font-size:16px;
+line-height:1.8;
+background:#fafafa;
+padding:20px;
+border-radius:10px;
+margin-top:15px;
 "
 >
-${recipe}
-</pre>
+${recipe
+  .replace(/========================/g, "<hr>")
+  .replace(/\n/g, "<br>")}</div>
 
 </div>
 `;

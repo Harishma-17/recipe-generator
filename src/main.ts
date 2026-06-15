@@ -64,31 +64,28 @@ button?.addEventListener("click", async () => {
 const prompt = `
 Using these ingredients: ${ingredients}
 
-Generate 3 different recipes.
+Generate exactly 3 recipes.
 
-For each recipe use:
+Return the response as HTML only.
 
-🍲 Recipe Name
+For each recipe create:
 
-🥕 Ingredients:
-• ingredient 1
-• ingredient 2
+<div style="border:1px solid #ddd;padding:15px;border-radius:10px;margin:15px 0;">
+<h3>🍲 Recipe Name</h3>
+<p><b>🥕 Ingredients:</b></p>
+<ul>
+<li>Ingredient</li>
+</ul>
 
-👨‍🍳 Steps:
-1. Step one
-2. Step two
+<p><b>👨‍🍳 Steps:</b></p>
+<ol>
+<li>Step</li>
+</ol>
 
-⏱ Cooking Time
+<p><b>⏱ Cooking Time:</b></p>
+</div>
 
-Separate each recipe with:
-
-========================
-
-Repeat for all 3 recipes.
-
-Make output clean and well formatted.
-
-Make the recipes easy and beginner friendly.
+Create 3 separate recipe cards.
 `;
 const response = await groq.chat.completions.create({
   messages: [
@@ -122,9 +119,15 @@ border-radius:15px;
 
 <h2>🍽 Recipe Suggestions</h2>
 
-<div style="font-size:40px;">
-🍅 🧅 🥚
-</div>
+<h3>🥗 Ingredients Used</h3>
+
+<p style="
+font-size:18px;
+font-weight:bold;
+color:#ff6b35;
+">
+${ingredients}
+</p>
 
 <div
 style="
@@ -137,10 +140,7 @@ border-radius:10px;
 margin-top:15px;
 "
 >
-${recipe
-  .replace(/========================/g, "<hr>")
-  .replace(/\n/g, "<br>")}</div>
-
+${recipe}
 </div>
 `;
 } catch (error: any) {

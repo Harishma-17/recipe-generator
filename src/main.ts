@@ -3,7 +3,26 @@ const groq = new Groq({
   apiKey: import.meta.env.VITE_GROQ_API_KEY,
   dangerouslyAllowBrowser: true,
 });
+const PEXELS_API_KEY = import.meta.env.VITE_PEXELS_API_KEY;
 
+async function getRecipeImage(recipeName: string) {
+  const response = await fetch(
+    `https://api.pexels.com/v1/search?query=${encodeURIComponent(recipeName)}&per_page=1`,
+    {
+      headers: {
+        Authorization: PEXELS_API_KEY,
+      },
+    }
+  );
+
+  const data = await response.json();
+
+  if (data.photos && data.photos.length > 0) {
+    return data.photos[0].src.medium;
+  }
+
+  return "https://via.placeholder.com/600x400?text=No+Image";
+}
 document.querySelector('#app')!.innerHTML = `
 <div style="
 padding:20px;
@@ -62,33 +81,25 @@ button?.addEventListener("click", async () => {
   try {
 const prompt = `
 Using these ingredients: ${ingredients}
-
 Generate exactly 3 recipes.
 
-Return ONLY valid HTML.
+Return ONLY valid JSON.
+
+Example format:
+
+[
+ {
+   "name":"Fried Rice",
+   "ingredients":["rice","egg"],
+   "steps":["step1","step2"],
+   "time":"15 mins"
+ }
+]
+
 
 Do not include explanations.
 Do not include notes.
-Do not repeat instructions.
-Do not write any text outside HTML.
-For each recipe create:
-
-<div style="border:1px solid #ddd;padding:15px;border-radius:10px;margin:15px 0;">
-<h3>🍲 Recipe Name</h3>
-<p><b>🥕 Ingredients:</b></p>
-<ul>
-<li>Ingredient</li>
-</ul>
-
-<p><b>👨‍🍳 Steps:</b></p>
-<ol>
-<li>Step</li>
-</ol>
-
-<p><b>⏱ Cooking Time:</b></p>
-</div>
-
-Create 3 separate recipe cards.
+Return only valid JSON array.
 `;
 const response = await groq.chat.completions.create({
   messages: [
@@ -99,7 +110,18 @@ const response = await groq.chat.completions.create({
   ],
   model: "llama-3.3-70b-versatile",
 });
-const recipe = response.choices[0].message.content || "";
+const content = response.choices[0].message.content || "[]";
+
+console.log(content);
+const recipes = JSON.parse(content);
+  
+
+const recipesWithImages = await Promise.all(
+  recipes.map(async (r: any) => ({
+    ...r,
+    image: await getRecipeImage(r.name)
+  }))
+);
 result!.innerHTML = `
 <div
 style="
@@ -123,19 +145,29 @@ color:#ff6b35;
 ${ingredients}
 </p>
 
-<div
-style="
-text-align:left;
-font-size:16px;
-line-height:1.8;
-background:#fafafa;
-padding:20px;
-border-radius:10px;
-margin-top:15px;
-"
->
-${recipe}
+${recipesWithImages.map((r: any) => `
+<div style="border:1px solid #ddd;padding:15px;border-radius:10px;margin:15px 0;">
+  <h3>${r.name}</h3>
+
+  <img
+  src="${r.image}"
+  style="width:100%;max-height:250px;object-fit:cover;border-radius:10px;"
+  />
+
+  <p style="text-align:left;"><b>Ingredients:</b></p>
+
+  <ul style="text-align:left;">
+    ${r.ingredients.map((i: string) => `<li>${i}</li>`).join("")}
+  </ul>
+  <p style="text-align:left;"><b>Steps:</b></p>
+  <ol style="text-align:left;">
+    ${r.steps.map((s: string) => `<li>${s}</li>`).join("")}
+  </ol>
+
+  <p><b>Cooking Time:</b> ${r.time}</p>
 </div>
+`).join("")}
+
 </div>
 `;
 

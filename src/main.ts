@@ -97,7 +97,7 @@ const response = await groq.chat.completions.create({
 });
 const recipe = response.choices[0].message.content || "";
 const foodImage =
-"https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800";
+"https://picsum.photos/800/500";
 result!.innerHTML = `
 <div
 style="

@@ -96,6 +96,8 @@ const response = await groq.chat.completions.create({
   model: "llama-3.3-70b-versatile",
 });
 const recipe = response.choices[0].message.content || "";
+const foodImage =
+`https://source.unsplash.com/800x500/?${encodeURIComponent(ingredients)},food`;
 result!.innerHTML = `
 <div
 style="
@@ -108,7 +110,7 @@ margin-top:20px;
 >
 
 <img
-src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800"
+src="${foodImage}"
 style="
 width:100%;
 max-width:500px;

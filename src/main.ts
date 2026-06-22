@@ -65,8 +65,12 @@ Using these ingredients: ${ingredients}
 
 Generate exactly 3 recipes.
 
-Return the response as HTML only.
+Return ONLY valid HTML.
 
+Do not include explanations.
+Do not include notes.
+Do not repeat instructions.
+Do not write any text outside HTML.
 For each recipe create:
 
 <div style="border:1px solid #ddd;padding:15px;border-radius:10px;margin:15px 0;">
@@ -96,8 +100,6 @@ const response = await groq.chat.completions.create({
   model: "llama-3.3-70b-versatile",
 });
 const recipe = response.choices[0].message.content || "";
-const foodImage =
-"https://picsum.photos/800/500";
 result!.innerHTML = `
 <div
 style="
@@ -108,15 +110,6 @@ box-shadow:0px 4px 15px rgba(0,0,0,0.15);
 margin-top:20px;
 "
 >
-
-<img
-src="${foodImage}"
-style="
-width:100%;
-max-width:500px;
-border-radius:15px;
-"
-/>
 
 <h2>🍽 Recipe Suggestions</h2>
 
@@ -143,7 +136,9 @@ margin-top:15px;
 >
 ${recipe}
 </div>
+</div>
 `;
+
 } catch (error: any) {
   console.log(error);
   result!.innerHTML = error.message;

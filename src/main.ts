@@ -74,6 +74,7 @@ Do not write any text outside HTML.
 For each recipe create:
 
 <div style="border:1px solid #ddd;padding:15px;border-radius:10px;margin:15px 0;">
+<img src="https://picsum.photos/600/400" style="width:100%;border-radius:10px;">
 <h3>🍲 Recipe Name</h3>
 <p><b>🥕 Ingredients:</b></p>
 <ul>
